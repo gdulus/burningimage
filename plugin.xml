@@ -1,0 +1,22 @@
+<plugin name='burning-image' version='0.3' grailsVersion='1.2 &gt; *'>
+  <author>Pawel Gdula</author>
+  <authorEmail>pawel.gdula@burningice.pl</authorEmail>
+  <title>Burning Image</title>
+  <description>Image manipulation plugin</description>
+  <documentation>http://code.google.com/p/burningimage/</documentation>
+  <resources>
+    <resource>DataSource</resource>
+    <resource>UrlMappings</resource>
+    <resource>pl.burningice.plugins.image.ast.TestDomain</resource>
+    <resource>pl.burningice.plugins.image.ast.TestDomainSecond</resource>
+    <resource>pl.burningice.plugins.image.BurningImageService</resource>
+    <resource>pl.burningice.plugins.image.ImageUploadService</resource>
+    <resource>pl.burningice.plugins.image.BurningImageTagLib</resource>
+  </resources>
+  <dependencies>
+    <resolvers>
+      <resolver type='grailsPlugins' name='grailsPlugins' />
+    </resolvers>
+  </dependencies>
+  <behavior />
+</plugin>
