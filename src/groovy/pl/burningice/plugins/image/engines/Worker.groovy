@@ -87,6 +87,18 @@ class Worker {
     return this
   }
 
+  /** 
+   *Return the processed image only
+
+   *@param chain Specify work field
+   *@return manipulated image
+   */
+   ImageFile returnImage(Closure chain){
+     ImageFile image = ImageFileFactory.produce(loadedImage)
+     chain(new Action(loadedImage : image))
+     image
+   }
+
   /**
    * Perform work
    *
