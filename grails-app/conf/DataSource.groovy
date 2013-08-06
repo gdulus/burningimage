@@ -13,20 +13,32 @@ hibernate {
 environments {
 	development {
 		dataSource {
-			dbCreate = "create-drop" // one of 'create', 'create-drop','update'
-			url = "jdbc:hsqldb:mem:devDB"
+            driverClassName = "org.h2.Driver"
+            // In memory database
+            url = "jdbc:h2:mem:devDb;MVCC=TRUE"
+
+            // File-based database
+            //url = "jdbc:h2:prodDb;MVCC=TRUE"
 		}
 	}
 	test {
 		dataSource {
-			dbCreate = "update"
-			url = "jdbc:hsqldb:mem:testDb"
+            driverClassName = "org.h2.Driver"
+            // In memory database
+            url = "jdbc:h2:mem:devDb;MVCC=TRUE"
+
+            // File-based database
+            //url = "jdbc:h2:prodDb;MVCC=TRUE"
 		}
 	}
 	production {
 		dataSource {
-			dbCreate = "update"
-			url = "jdbc:hsqldb:file:prodDb;shutdown=true"
+            driverClassName = "org.h2.Driver"
+            // In memory database
+            url = "jdbc:h2:mem:devDb;MVCC=TRUE"
+
+            // File-based database
+            //url = "jdbc:h2:prodDb;MVCC=TRUE"
 		}
 	}
 }
