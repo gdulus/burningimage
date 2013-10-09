@@ -1,31 +1,30 @@
 package pl.burningice.plugins.image
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
-
-import grails.test.GrailsUnitTestCase
+import grails.test.mixin.TestMixin
+import grails.test.mixin.support.GrailsUnitTestMixin
+import pl.burningice.plugins.image.file.ImageFileFactory
+import pl.burningice.plugins.image.file.LocalImageFile
+import pl.burningice.plugins.image.file.MultipartImageFile
 import pl.burningice.plugins.image.test.FileUploadUtils
-import pl.burningice.plugins.image.file.*
+
 import javax.media.jai.RenderedOp
-import com.sun.media.jai.codec.SeekableStream
-import com.sun.media.jai.codec.FileSeekableStream
-import javax.imageio.ImageIO
 
 /**
  *
  * @author pawel.gdula@burningice.pl
  */
 
-@Mixin(FileUploadUtils)
-class ImageFileTests extends GrailsUnitTestCase {
+@TestMixin([FileUploadUtils, GrailsUnitTestMixin])
+class ImageFileTests {
 
-    void testProduceFile(){
-        shouldFail {ImageFileFactory.produce(getFilePath('image.jpg'))} // String as parameter
-        shouldFail {ImageFileFactory.produce(getFile('image.jpg'))} // BufferedImage as parameter
+    void testProduceFile() {
+        shouldFail { ImageFileFactory.produce(getFilePath('image.jpg')) } // String as parameter
+        shouldFail { ImageFileFactory.produce(getFile('image.jpg')) } // BufferedImage as parameter
         assertTrue ImageFileFactory.produce(new File(getFilePath('image.jpg'))) instanceof LocalImageFile
-        assertTrue ImageFileFactory.produce(getMultipartFile('image.jpg')) instanceof MultipartImageFile 
+        assertTrue ImageFileFactory.produce(getMultipartFile('image.jpg')) instanceof MultipartImageFile
     }
 
-    void testGetAsByteArrayFirstThenAsJaiStreamJpg(){
+    void testGetAsByteArrayFirstThenAsJaiStreamJpg() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 514893, byteArray.size()
@@ -39,7 +38,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 1200, jaiStream.height
     }
 
-    void testGetAsJaiStreamFirstThenAsByteArrayJpg(){
+    void testGetAsJaiStreamFirstThenAsByteArrayJpg() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 1920, jaiStream.width
@@ -53,7 +52,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 514893, byteArray.size()
     }
 
-    void testGetAsByteArrayFirstThenAsJaiStreamPng(){
+    void testGetAsByteArrayFirstThenAsJaiStreamPng() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 1511812, byteArray.size()
@@ -67,7 +66,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 800, jaiStream.height
     }
 
-    void testGetAsJaiStreamFirstThenAsByteArrayPng(){
+    void testGetAsJaiStreamFirstThenAsByteArrayPng() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 1280, jaiStream.width
@@ -81,7 +80,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 1511812, byteArray.size()
     }
 
-    void testGetAsJaiStreamFirstThenAsByteArrayGif(){
+    void testGetAsJaiStreamFirstThenAsByteArrayGif() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.gif'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 650, jaiStream.width
@@ -95,7 +94,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 186264, byteArray.size()
     }
 
-    void testGetAsByteArrayFirstThenAsJaiStreamBmp(){
+    void testGetAsByteArrayFirstThenAsJaiStreamBmp() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 1254214, byteArray.size()
@@ -109,7 +108,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 610, jaiStream.height
     }
 
-    void testGetAsJaiStreamFirstThenAsByteArrayBmp(){
+    void testGetAsJaiStreamFirstThenAsByteArrayBmp() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 685, jaiStream.width
@@ -123,7 +122,7 @@ class ImageFileTests extends GrailsUnitTestCase {
         assertEquals 1254214, byteArray.size()
     }
 
-    void testPlayWithApiMultipartFile(){
+    void testPlayWithApiMultipartFile() {
         MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         // get size
         def size = image.getSize()

@@ -22,7 +22,10 @@ THE SOFTWARE.
 package pl.burningice.plugins.image.test
 
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.web.multipart.MultipartFile
+
 import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
 
 /**
  * Class provide additional methods for testing file upload
@@ -31,11 +34,23 @@ import javax.imageio.ImageIO
  */
 class FileUploadUtils {
 
-    static final def SOURCE_DIR = './resources/testImages/'
+    private static final String RESULT_DIR = './resources/resultImages/'
 
-    void cleanUpTestDir(){
+    private static final String SOURCE_DIR = './resources/testImages/'
+
+    private static final Map<String, String> TYPES = ['jpg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif', 'bmp': 'image/bmp']
+
+    public String getResultDir() {
+        return RESULT_DIR
+    }
+
+    public String getSourceDir() {
+        return SOURCE_DIR
+    }
+
+    public void cleanUpTestDir() {
         new File(RESULT_DIR).list().toList().each {
-            if(it != '.svn'){
+            if (it != '.svn') {
                 def filePath = "${RESULT_DIR}${it}"
                 println "Remove ${filePath}"
                 new File(filePath).delete()
@@ -43,30 +58,25 @@ class FileUploadUtils {
         }
     }
 
-    def fileExists(fileName){
-        println "search for file ${RESULT_DIR}${fileName}"
+    public boolean fileExists(fileName) {
         new File("${RESULT_DIR}${fileName}").exists()
     }
 
-    def getFilePath(fileName){
+    public String getFilePath(fileName) {
         "${SOURCE_DIR}${fileName}"
     }
 
-    def getFile(fileName, dir = null){
+    public BufferedImage getFile(fileName, dir = null) {
         ImageIO.read(new File("${dir ?: RESULT_DIR}${fileName}"))
     }
 
-    def getEmptyMultipartFile(){
+    public MultipartFile getEmptyMultipartFile() {
         new MockMultipartFile('empty', new byte[0])
     }
 
-    def getMultipartFile(fileName){
+    public MultipartFile getMultipartFile(final String fileName) {
         def fileNameParts = fileName.split(/\./)
-        def contentTypes = ['jpg':'image/jpeg', 'png':'image/png', 'gif':'image/gif', 'bmp':'image/bmp']
-        new MockMultipartFile(fileNameParts[0],
-                              fileName,
-                              contentTypes[fileNameParts[1]],
-                              new FileInputStream(getFilePath(fileName)))
+        new MockMultipartFile(fileNameParts[0], fileName, TYPES[fileNameParts[1]], new FileInputStream(getFilePath(fileName)))
     }
 
 }
