@@ -2,6 +2,7 @@ package pl.burningice.plugins.image
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
+import pl.burningice.plugins.image.file.ImageFile
 import pl.burningice.plugins.image.file.ImageFileFactory
 import pl.burningice.plugins.image.file.LocalImageFile
 import pl.burningice.plugins.image.file.MultipartImageFile
@@ -10,22 +11,18 @@ import pl.burningice.plugins.image.test.FileUploadUtils
 import javax.media.jai.RenderedOp
 
 /**
- *
  * @author pawel.gdula@burningice.pl
  */
-
 @TestMixin([FileUploadUtils, GrailsUnitTestMixin])
 class ImageFileTests {
 
     void testProduceFile() {
-        shouldFail { ImageFileFactory.produce(getFilePath('image.jpg')) } // String as parameter
-        shouldFail { ImageFileFactory.produce(getFile('image.jpg')) } // BufferedImage as parameter
         assertTrue ImageFileFactory.produce(new File(getFilePath('image.jpg'))) instanceof LocalImageFile
         assertTrue ImageFileFactory.produce(getMultipartFile('image.jpg')) instanceof MultipartImageFile
     }
 
     void testGetAsByteArrayFirstThenAsJaiStreamJpg() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 514893, byteArray.size()
         RenderedOp jaiStream = image.getAsJaiStream()
@@ -39,7 +36,7 @@ class ImageFileTests {
     }
 
     void testGetAsJaiStreamFirstThenAsByteArrayJpg() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 1920, jaiStream.width
         assertEquals 1200, jaiStream.height
@@ -53,7 +50,7 @@ class ImageFileTests {
     }
 
     void testGetAsByteArrayFirstThenAsJaiStreamPng() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 1511812, byteArray.size()
         RenderedOp jaiStream = image.getAsJaiStream()
@@ -67,7 +64,7 @@ class ImageFileTests {
     }
 
     void testGetAsJaiStreamFirstThenAsByteArrayPng() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.png'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 1280, jaiStream.width
         assertEquals 800, jaiStream.height
@@ -81,7 +78,7 @@ class ImageFileTests {
     }
 
     void testGetAsJaiStreamFirstThenAsByteArrayGif() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.gif'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.gif'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 650, jaiStream.width
         assertEquals 487, jaiStream.height
@@ -95,7 +92,7 @@ class ImageFileTests {
     }
 
     void testGetAsByteArrayFirstThenAsJaiStreamBmp() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
         byte[] byteArray = image.getAsByteArray()
         assertEquals 1254214, byteArray.size()
         RenderedOp jaiStream = image.getAsJaiStream()
@@ -109,7 +106,7 @@ class ImageFileTests {
     }
 
     void testGetAsJaiStreamFirstThenAsByteArrayBmp() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.bmp'))
         RenderedOp jaiStream = image.getAsJaiStream()
         assertEquals 685, jaiStream.width
         assertEquals 610, jaiStream.height
@@ -123,7 +120,7 @@ class ImageFileTests {
     }
 
     void testPlayWithApiMultipartFile() {
-        MultipartImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
+        ImageFile image = ImageFileFactory.produce(getMultipartFile('image.jpg'))
         // get size
         def size = image.getSize()
         assertEquals 1920, size.width
