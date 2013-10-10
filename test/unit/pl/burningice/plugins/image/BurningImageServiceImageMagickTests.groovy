@@ -6,7 +6,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH
 import org.junit.Before
 import pl.burningice.plugins.image.engines.RenderingEngine
 import pl.burningice.plugins.image.engines.Worker
-import pl.burningice.plugins.image.test.FileUploadUtils
+import pl.burningice.plugins.image.test.UnitTestFileUploadUtils
 
 import java.awt.*
 
@@ -14,7 +14,7 @@ import java.awt.*
  *
  * @author pawel.gdula@burningice.pl
  */
-@TestMixin([FileUploadUtils, GrailsUnitTestMixin])
+@TestMixin([UnitTestFileUploadUtils, GrailsUnitTestMixin])
 class BurningImageServiceImageMagickTests {
 
     private def burningImageService
@@ -28,6 +28,7 @@ class BurningImageServiceImageMagickTests {
     }
 
     void testScaleApproximateMultipartFile() {
+        System.out.println(System.getProperty("java.library.path"));
         assertEquals(ConfigUtils.getEngine(), RenderingEngine.IMAGE_MAGICK)
         assertFalse(fileExists('image.jpg'))
 

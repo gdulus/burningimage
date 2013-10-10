@@ -21,22 +21,25 @@ THE SOFTWARE.
 */
 package pl.burningice.plugins.image.container
 
+import pl.burningice.plugins.image.ast.intarface.DBImageContainer
+
 /**
  * Worker for DB container
  *
  * @author pawel.gdula@burningice.pl
  */
-class DbContainerWorker extends ContainerWorker {
+class DbContainerWorker extends ContainerWorker<DBImageContainer> {
 
     boolean hasImage() {
         return (container.biImage != null && !container.biImage.isEmpty())
     }
 
     void delete() {
-        if (!hasImage()){
+        if (!hasImage()) {
             return
         }
-        container.biImage.collect {it.value}.each {it.delete()}
+
+        container.biImage.collect { it.value }.each { it.delete(flush: true) }
         container.biImage = null
     }
 

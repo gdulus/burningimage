@@ -32,26 +32,18 @@ import java.awt.image.BufferedImage
  *
  * @author pawel.gdula@burningice.pl
  */
-class FileUploadUtils {
-
-    private static final String RESULT_DIR = './resources/resultImages/'
-
-    private static final String SOURCE_DIR = './resources/testImages/'
+abstract class FileUploadUtils {
 
     private static final Map<String, String> TYPES = ['jpg': 'image/jpeg', 'png': 'image/png', 'gif': 'image/gif', 'bmp': 'image/bmp']
 
-    public String getResultDir() {
-        return RESULT_DIR
-    }
+    public abstract String getResultDir()
 
-    public String getSourceDir() {
-        return SOURCE_DIR
-    }
+    public abstract getSourceDir()
 
     public void cleanUpTestDir() {
-        new File(RESULT_DIR).list().toList().each {
+        new File(resultDir).list().toList().each {
             if (it != '.svn') {
-                def filePath = "${RESULT_DIR}${it}"
+                def filePath = "${resultDir}${it}"
                 println "Remove ${filePath}"
                 new File(filePath).delete()
             }
@@ -59,15 +51,15 @@ class FileUploadUtils {
     }
 
     public boolean fileExists(fileName) {
-        new File("${RESULT_DIR}${fileName}").exists()
+        new File("${resultDir}${fileName}").exists()
     }
 
     public String getFilePath(fileName) {
-        "${SOURCE_DIR}${fileName}"
+        "${sourceDir}${fileName}"
     }
 
     public BufferedImage getFile(fileName, dir = null) {
-        ImageIO.read(new File("${dir ?: RESULT_DIR}${fileName}"))
+        ImageIO.read(new File("${dir ?: resultDir}${fileName}"))
     }
 
     public MultipartFile getEmptyMultipartFile() {

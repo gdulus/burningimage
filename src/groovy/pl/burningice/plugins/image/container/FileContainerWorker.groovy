@@ -22,15 +22,16 @@ THE SOFTWARE.
 package pl.burningice.plugins.image.container
 
 import pl.burningice.plugins.image.ResourcePathProvider
+import pl.burningice.plugins.image.ast.intarface.FileImageContainer
 
 /**
  * Worker for File container
  *
  * @author pawel.gdula@burningice.pl
  */
-class FileContainerWorker extends ContainerWorker {
+class FileContainerWorker extends ContainerWorker<FileImageContainer> {
 
-    ResourcePathProvider resourcePathProvider 
+    ResourcePathProvider resourcePathProvider
 
     boolean hasImage() {
         container.imageExtension != null
@@ -38,9 +39,9 @@ class FileContainerWorker extends ContainerWorker {
 
     void delete() {
         def path = resourcePathProvider.getPath(config.outputDir)
-        config.images.each {subImageName, subImageOperations ->
+        config.images.each { subImageName, subImageOperations ->
             def file = new File("${path}/${ContainerUtils.getFullName(subImageName, container, config)}")
-            if (file.exists()){
+            if (file.exists()) {
                 file.delete()
             }
         }

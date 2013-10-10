@@ -4,14 +4,14 @@ import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
 import org.junit.Before
 import pl.burningice.plugins.image.engines.Worker
-import pl.burningice.plugins.image.test.FileUploadUtils
+import pl.burningice.plugins.image.test.UnitTestFileUploadUtils
 
 import java.awt.*
 
 /**
  * @author pawel.gdula@burningice.pl
  */
-@TestMixin([FileUploadUtils, GrailsUnitTestMixin])
+@TestMixin([UnitTestFileUploadUtils, GrailsUnitTestMixin])
 class BurningImageServiceJAITests {
 
     private def burningImageService

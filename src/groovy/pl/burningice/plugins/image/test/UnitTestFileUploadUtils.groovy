@@ -19,27 +19,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package pl.burningice.plugins.image.ast
-
+package pl.burningice.plugins.image.test
 /**
- * Domain class for saving images uploaded by user
+ * Class provide additional methods for testing file upload
  *
  * @author pawel.gdula@burningice.pl
  */
-class Image {
+class UnitTestFileUploadUtils extends FileUploadUtils {
 
-    public static final MAX_IMAGE_SIZE = 1073741824 // 4GB
+    private static final String RESULT_DIR = './resources/resultImages/'
 
-    String type
+    private static final String SOURCE_DIR = './resources/testImages/'
 
-    byte[] data
-
-    static constraints = {
-        type(nullable: false, blank: false)
-        data(nullable: false, blank: false, maxSize: MAX_IMAGE_SIZE)
+    @Override
+    public String getResultDir() {
+        return RESULT_DIR
     }
 
-    static mapping = {
-        table 'bi_images'
+    @Override
+    public String getSourceDir() {
+        return SOURCE_DIR
     }
+
 }

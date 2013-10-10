@@ -6,14 +6,14 @@ import pl.burningice.plugins.image.file.ImageFile
 import pl.burningice.plugins.image.file.ImageFileFactory
 import pl.burningice.plugins.image.file.LocalImageFile
 import pl.burningice.plugins.image.file.MultipartImageFile
-import pl.burningice.plugins.image.test.FileUploadUtils
+import pl.burningice.plugins.image.test.UnitTestFileUploadUtils
 
 import javax.media.jai.RenderedOp
 
 /**
  * @author pawel.gdula@burningice.pl
  */
-@TestMixin([FileUploadUtils, GrailsUnitTestMixin])
+@TestMixin([UnitTestFileUploadUtils, GrailsUnitTestMixin])
 class ImageFileTests {
 
     void testProduceFile() {
