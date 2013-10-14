@@ -22,24 +22,24 @@ THE SOFTWARE.
 package pl.burningice.plugins.image.ast
 
 /**
-  * Domain class for saving images uploaded by user 
-  *
-  * @author pawel.gdula@burningice.pl
-  */
+ * Domain class for saving images uploaded by user
+ *
+ * @author pawel.gdula@burningice.pl
+ */
 class Image {
 
-    private static final MAX_IMAGE_SIZE = 1073741824 // 4GB 
+    public static final MAX_IMAGE_SIZE = 1073741824 // 4GB
 
     String type
 
     byte[] data
 
     static constraints = {
-        type(nullable:false, blank:false)
-        data(nullable:false, blank:false, maxSize:MAX_IMAGE_SIZE)
+        type(nullable: false, blank: false)
+        data(nullable: false, blank: false, maxSize: MAX_IMAGE_SIZE)
     }
 
     static mapping = {
-		table 'bi_images'
+        table 'bi_images'
     }
 }

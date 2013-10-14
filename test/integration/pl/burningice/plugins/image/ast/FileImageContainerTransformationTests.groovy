@@ -1,29 +1,25 @@
 package pl.burningice.plugins.image.ast
 
-import pl.burningice.plugins.image.ast.intarface.FileImageContainer
+import grails.test.mixin.TestMixin
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import pl.burningice.plugins.image.ast.test.TestDomainSecond
-import pl.burningice.plugins.image.ast.test.TestDomain
+import org.junit.Ignore
+import pl.burningice.plugins.image.ast.intarface.FileImageContainer
 import pl.burningice.plugins.image.ast.intarface.ImageContainer
-import grails.test.GrailsUnitTestCase
-import pl.burningice.plugins.image.test.FileUploadUtils
+import pl.burningice.plugins.image.ast.test.TestDomain
+import pl.burningice.plugins.image.ast.test.TestDomainSecond
+import pl.burningice.plugins.image.test.IntegrationTestFileUploadUtils
 
 /**
  * @author pawel.gdula@burningice.pl
  */
-@Mixin(FileUploadUtils)
-class FileImageContainerTransformationTests extends GrailsUnitTestCase {
+@TestMixin(IntegrationTestFileUploadUtils)
+class FileImageContainerTransformationTests extends GroovyTestCase {
 
-    protected static final def RESULT_DIR = './resources/resultImages/'
-
-    protected void setUp() {
+    @Override
+    void setUp() {
         super.setUp()
         cleanUpTestDir()
         ConfigurationHolder.config = new ConfigObject()
-    }
-
-    protected void tearDown() {
-        super.tearDown()
     }
 
     void testFileImageContainerInterface() {
@@ -38,10 +34,10 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
 
         def testDomain = new TestDomain()
         assertTrue testDomain instanceof FileImageContainer
-        assertTrue testDomain instanceof  ImageContainer
+        assertTrue testDomain instanceof ImageContainer
         assertNull testDomain.imageExtension
 
-        testDomain = new TestDomain(imageExtension:'jpg')
+        testDomain = new TestDomain(imageExtension: 'jpg')
         assertNotNull testDomain.imageExtension
 
         testDomain = new TestDomain()
@@ -77,28 +73,29 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
      * It seems that there is no trancient fileds in tests ....
      * TODO: check on live
      */
-    void _testTransientFields(){
-        
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg'))
+    @Ignore
+    void testTransientFields() {
+
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg'))
         assertNotNull testDomain.image
-        testDomain.save(flush:true)
+        testDomain.save(flush: true)
         assertNotNull testDomain.ident()
-        println "TestDomain.get(testDomain.ident()).image = " +  TestDomain.get(testDomain.ident()).image
+        println "TestDomain.get(testDomain.ident()).image = " + TestDomain.get(testDomain.ident()).image
         assertNull TestDomain.get(testDomain.ident()).image
-        
-        testDomain = new TestDomainSecond(avatar:getMultipartFile('image.jpg'), email:'test@test.pl', lastname:'xxxxx')
+
+        testDomain = new TestDomainSecond(avatar: getMultipartFile('image.jpg'), email: 'test@test.pl', lastname: 'xxxxx')
         assertNotNull testDomain.image
         assertNotNull testDomain.avatar
-        
-        testDomain.save(flush:true)
+
+        testDomain.save(flush: true)
         assertNotNull testDomain.ident()
 
         assertNull TestDomainSecond.get(testDomain.ident()).lastname
         assertNull TestDomainSecond.get(testDomain.ident()).image
         assertNull TestDomainSecond.get(testDomain.ident()).avatar
     }
-    
-    void testFileImageContainerConstraints(){
+
+    void testFileImageContainerConstraints() {
         def testDomain = new TestDomain()
         assertFalse testDomain.hasErrors()
         assertTrue testDomain.validate()
@@ -110,24 +107,24 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
         assertTrue testDomainSecond.errors.hasFieldErrors('email')
     }
 
-    void testImageConstraints(){
+    void testImageConstraints() {
         def testDomain = new TestDomain()
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldErrors('image'), []
 
         ConfigurationHolder.config.bi.TestDomain = [
-            constraints:null
+            constraints: null
         ]
 
         testDomain = new TestDomain()
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldErrors('image'), []
-        
+
         ConfigurationHolder.config.bi.TestDomain = [
-            constraints:[
-                nullable:true
+            constraints: [
+                nullable: true
             ]
         ]
 
@@ -136,38 +133,38 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
 
         assertEquals testDomain.errors.getFieldErrors('image'), []
 
-        testDomain = new TestDomain(image:getEmptyMultipartFile())
+        testDomain = new TestDomain(image: getEmptyMultipartFile())
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldErrors('image'), []
 
         ConfigurationHolder.config.bi.TestDomain = [
-            constraints:[
-                nullable:false
+            constraints: [
+                nullable: false
             ]
         ]
-        
+
         testDomain = new TestDomain()
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldError('image').getCode(), 'nullable'
 
-        testDomain = new TestDomain(image:getEmptyMultipartFile())
+        testDomain = new TestDomain(image: getEmptyMultipartFile())
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldError('image').getCode(), 'nullable'
 
         ConfigurationHolder.config.bi.TestDomain = [
-            constraints:[
-                nullable:false,
-                maxSize:50,
-                contentType:['image/gif', 'image/png']
+            constraints: [
+                nullable: false,
+                maxSize: 50,
+                contentType: ['image/gif', 'image/png']
             ]
         ]
 
         def image = getMultipartFile('image.jpg')
-        
-        testDomain = new TestDomain(image:image)
+
+        testDomain = new TestDomain(image: image)
         testDomain.validate()
 
         println testDomain.errors.getFieldErrors('image')
@@ -175,11 +172,11 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
 
         ConfigurationHolder.config.bi.TestDomain.constraints.maxSize = image.getSize()
         testDomain.validate()
-        
+
         println testDomain.errors.getFieldErrors('image')
         assertEquals testDomain.errors.getFieldError('image').getCode(), 'contentType.invalid'
 
-        ConfigurationHolder.config.bi.TestDomain.constraints.contentType <<  image.getContentType()
+        ConfigurationHolder.config.bi.TestDomain.constraints.contentType << image.getContentType()
         testDomain.validate()
 
         assertEquals testDomain.errors.getFieldErrors('image'), []
@@ -190,10 +187,10 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
         assertEquals testDomain.errors.getFieldErrors('image'), []
     }
 
-    void testBinding(){
+    void testBinding() {
         def image = getMultipartFile('image.jpg')
 
-        def testDomain = new TestDomain(image:image)
+        def testDomain = new TestDomain(image: image)
         assertEquals testDomain.image, image
 
         testDomain = new TestDomain()
@@ -201,10 +198,10 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
         assertEquals testDomain.image, image
 
         testDomain = new TestDomain()
-        testDomain.properties = [image:image]
+        testDomain.properties = [image: image]
         assertEquals testDomain.image, image
 
-        testDomain = new TestDomainSecond(avatar:image)
+        testDomain = new TestDomainSecond(avatar: image)
         assertEquals testDomain.avatar, image
         assertEquals testDomain.image, image
 
@@ -214,7 +211,7 @@ class FileImageContainerTransformationTests extends GrailsUnitTestCase {
         assertEquals testDomain.image, image
 
         testDomain = new TestDomainSecond()
-        testDomain.properties = [avatar:image]
+        testDomain.properties = [avatar: image]
         assertEquals testDomain.avatar, image
         assertEquals testDomain.image, image
     }

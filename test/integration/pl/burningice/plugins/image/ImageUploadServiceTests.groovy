@@ -1,56 +1,50 @@
 package pl.burningice.plugins.image
 
+import grails.test.mixin.TestMixin
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import pl.burningice.plugins.image.engines.scale.ScaleType
-import pl.burningice.plugins.image.ast.test.TestDomain
-import pl.burningice.plugins.image.ast.test.TestDbContainerDomainFirst
-import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
 import pl.burningice.plugins.image.ast.Image
+import pl.burningice.plugins.image.ast.test.TestDbContainerDomainFirst
 import pl.burningice.plugins.image.ast.test.TestDbContainerDomainSecond
 import pl.burningice.plugins.image.ast.test.TestDbContainerDomainThird
-import pl.burningice.plugins.image.test.FileUploadUtils
-import grails.test.GrailsUnitTestCase
-import org.springframework.context.ApplicationContextAware
-import org.springframework.context.ApplicationContext
+import pl.burningice.plugins.image.ast.test.TestDomain
 import pl.burningice.plugins.image.engines.RenderingEngine
+import pl.burningice.plugins.image.engines.scale.ScaleType
+import pl.burningice.plugins.image.test.IntegrationTestFileUploadUtils
+
+import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
 
 /**
  * @author pawel.gdula@burningice.pl
  */
-@Mixin(FileUploadUtils)
-class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationContextAware {
-
-    protected static final def RESULT_DIR = './web-app/upload/'
-
-    protected static final def WEB_APP_RESULT_DIR = './upload/'
+@TestMixin(IntegrationTestFileUploadUtils)
+class ImageUploadServiceTests extends GroovyTestCase implements ApplicationContextAware {
 
     ImageUploadService imageUploadService
 
     ApplicationContext applicationContext
 
-    protected void setUp() {
+    @Override
+    void setUp() {
         super.setUp()
         cleanUpTestDir()
         ConfigurationHolder.config = new ConfigObject()
     }
 
-    protected void tearDown() {
-        super.tearDown()
-    }
-
     void testDeleteDbContainerAndRelatedImagesWithDeleteBeforeMethodExists() {
         ConfigurationHolder.config.bi.TestDbContainerDomainThird = [
             images: [
-                'small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                'small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
 
-        def testDomain1 = new TestDbContainerDomainThird(namePrefix: 'prefixed-', name:'test 1', logo:getMultipartFile('image.jpg'))
+        def testDomain1 = new TestDbContainerDomainThird(namePrefix: 'prefixed-', name: 'test 1', logo: getMultipartFile('image.jpg'))
         assertTrue(testDomain1.validate())
-        assertNotNull(testDomain1.save(flush:true))
+        assertNotNull(testDomain1.save(flush: true))
         imageUploadService.save(testDomain1)
         assertNotNull(testDomain1.biImage)
         assertEquals(3, testDomain1.biImage.size())
@@ -67,7 +61,7 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         testDomain1.delete()
 
         assertEquals(TestDbContainerDomainThird.count(), 0)
-        assertEquals(Image.count(), 0)
+        assertEquals(0, Image.count())
         // see definition of TestDbContainerDomainThird to understand this line
         assertEquals('prefixed-test 1', testDomain1.name)
     }
@@ -75,14 +69,14 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
     void testDeleteDbContainerAndRelatedImages() {
         ConfigurationHolder.config.bi.TestDbContainerDomainSecond = [
             images: [
-                'small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                'small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
 
-        def testDomain1 = new TestDbContainerDomainSecond(name:'test 1', logo:getMultipartFile('image.jpg'))
-        assertNotNull(testDomain1.save(flush:true))
+        def testDomain1 = new TestDbContainerDomainSecond(name: 'test 1', logo: getMultipartFile('image.jpg'))
+        assertNotNull(testDomain1.save(flush: true))
         imageUploadService.save(testDomain1)
         assertNotNull(testDomain1.biImage)
         assertEquals(3, testDomain1.biImage.size())
@@ -96,8 +90,8 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         assertEquals(TestDbContainerDomainSecond.count(), 1)
         assertEquals(Image.count(), 3)
 
-        def testDomain2 = new TestDbContainerDomainSecond(name:'test 2', logo:getMultipartFile('image.png'))
-        assertNotNull(testDomain2.save(flush:true))
+        def testDomain2 = new TestDbContainerDomainSecond(name: 'test 2', logo: getMultipartFile('image.png'))
+        assertNotNull(testDomain2.save(flush: true))
         imageUploadService.save(testDomain2)
         assertNotNull(testDomain2.biImage)
         assertEquals(3, testDomain2.biImage.size())
@@ -109,17 +103,17 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         assertEquals('png', testDomain2.biImage.large.type)
 
         assertEquals(TestDbContainerDomainSecond.count(), 2)
-        assertEquals(Image.count(), 6)
+        assertEquals(6, Image.count())
 
-        testDomain1.delete()
+        testDomain1.delete(flush: true)
 
         assertEquals(TestDbContainerDomainSecond.count(), 1)
-        assertEquals(Image.count(), 3)
+        assertEquals(3, Image.count())
 
-        List<Image> testDomain2Images = testDomain2.biImage.collect {it.value} 
-        Image.list().each {Image img -> assertTrue(testDomain2Images.contains(img))}
+        List<Image> testDomain2Images = testDomain2.biImage.collect { it.value }
+        Image.list().each { Image img -> assertTrue(testDomain2Images.contains(img)) }
 
-        testDomain2.delete(flush:true)
+        testDomain2.delete(flush: true)
 
         assertEquals(TestDbContainerDomainSecond.count(), 0)
         assertEquals(Image.count(), 0)
@@ -130,13 +124,13 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         // should be ok now
         ConfigurationHolder.config.bi.TestDbContainerDomainSecond = [
             images: [
-                'small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                'small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
-        testDomain = new TestDbContainerDomainSecond(name:'test', logo:getMultipartFile('image.jpg'))
-        assertNotNull(testDomain.save(flush:true))
+        testDomain = new TestDbContainerDomainSecond(name: 'test', logo: getMultipartFile('image.jpg'))
+        assertNotNull(testDomain.save(flush: true))
         imageUploadService.save(testDomain)
         assertEquals(Image.count(), 3)
         assertNotNull(testDomain.biImage)
@@ -158,31 +152,31 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         ConfigurationHolder.config.bi.TestDbContainerDomainSecond = null
         // instance not saved and there is no image
         testDomain = new TestDbContainerDomainSecond()
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // image uploaded but instance not saved
-        testDomain = new TestDbContainerDomainSecond(name:'test', logo:getMultipartFile('image.jpg'))
-        shouldFail(IllegalArgumentException){
+        testDomain = new TestDbContainerDomainSecond(name: 'test', logo: getMultipartFile('image.jpg'))
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // should fail, there is no config provided for this domain object
-        testDomain = new TestDbContainerDomainSecond(name:'test')
-        assertNotNull(testDomain.save(flush:true))
+        testDomain = new TestDbContainerDomainSecond(name: 'test')
+        assertNotNull(testDomain.save(flush: true))
         testDomain.logo = getMultipartFile('image.jpg')
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // should be ok now
         ConfigurationHolder.config.bi.TestDbContainerDomainSecond = [
             images: [
-                'small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                'small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
-        testDomain = new TestDbContainerDomainSecond(name:'test', logo:getMultipartFile('image.jpg'))
-        assertNotNull(testDomain.save(flush:true))
+        testDomain = new TestDbContainerDomainSecond(name: 'test', logo: getMultipartFile('image.jpg'))
+        assertNotNull(testDomain.save(flush: true))
         def version = testDomain.version
         imageUploadService.save(testDomain)
 
@@ -248,32 +242,32 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         ConfigurationHolder.config.bi.TestDbContainerDomainFirst = null
         // instance not saved and there is no image
         testDomain = new TestDbContainerDomainFirst()
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // image uploaded but instance not saved
-        testDomain = new TestDbContainerDomainFirst(image:getMultipartFile('image.jpg'))
-        shouldFail(IllegalArgumentException){
+        testDomain = new TestDbContainerDomainFirst(image: getMultipartFile('image.jpg'))
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // should fail, there is no config provided for this domain object
         testDomain = new TestDbContainerDomainFirst()
-        assertNotNull(testDomain.save(flush:true))
+        assertNotNull(testDomain.save(flush: true))
         testDomain.image = getMultipartFile('image.jpg')
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         // should be ok now
         ConfigurationHolder.config.bi.TestDbContainerDomainFirst = [
             images: [
-                'small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                'small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
-        testDomain = new TestDbContainerDomainFirst(image:getMultipartFile('image.jpg'))
-        assertNotNull(testDomain.save(flush:true))
-        def version = testDomain.version 
+        testDomain = new TestDbContainerDomainFirst(image: getMultipartFile('image.jpg'))
+        assertNotNull(testDomain.save(flush: true))
+        def version = testDomain.version
         imageUploadService.save(testDomain)
 
         assertEquals(version, testDomain.version)
@@ -334,28 +328,28 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
     }
 
     void testScale() {
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg'))
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg'))
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         assertNull testDomain.imageExtension
 
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: WEB_APP_RESULT_DIR,
+            outputDir: webAppResultDir,
             prefix: 'prefixName',
-            images: ['small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                     'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                     'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+            images: ['small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         assertNull testDomain.imageExtension
 
-        testDomain.save(flush:true)
+        testDomain.save(flush: true)
         def version = testDomain.version
 
         assertNotNull testDomain.ident()
@@ -388,12 +382,12 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
 
     void testScaleAndWatermak() {
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: WEB_APP_RESULT_DIR,
+            outputDir: webAppResultDir,
             prefix: null,
-            images: ['large':[watermark:[sign:'images/watermark.png', offset:[top:10, left:10]]]]
+            images: ['large': [watermark: [sign: 'images/watermark.png', offset: [top: 10, left: 10]]]]
         ]
 
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg')).save(flush:true)
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg')).save(flush: true)
         assertFalse fileExists("${testDomain.ident()}-large.jpg")
         imageUploadService.save(testDomain)
         assertTrue fileExists("${testDomain.ident()}-large.jpg")
@@ -401,20 +395,20 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
 
     void testDelete() {
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: WEB_APP_RESULT_DIR,
+            outputDir: webAppResultDir,
             prefix: 'prefixName',
-            images: ['small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                     'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                     'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+            images: ['small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
 
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg')).save(flush:true)
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg')).save(flush: true)
 
         assertFalse fileExists("prefixName-${testDomain.ident()}-large.jpg")
         assertFalse fileExists("prefixName-${testDomain.ident()}-medium.jpg")
         assertFalse fileExists("prefixName-${testDomain.ident()}-small.jpg")
-        
+
         imageUploadService.save(testDomain)
 
         assertTrue fileExists("prefixName-${testDomain.ident()}-large.jpg")
@@ -446,13 +440,13 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
 
     void testWatermak() {
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: WEB_APP_RESULT_DIR,
+            outputDir: webAppResultDir,
             prefix: 'scale-and-waremark',
-            images: ['large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE],
-                              watermark:[sign:'images/watermark.png', offset:[top:10, left:10]]]]
+            images: ['large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE],
+                watermark: [sign: 'images/watermark.png', offset: [top: 10, left: 10]]]]
         ]
 
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg')).save(flush:true)
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg')).save(flush: true)
         assertFalse fileExists("scale-and-waremark-${testDomain.ident()}-large.jpg")
         imageUploadService.save(testDomain)
         assertTrue fileExists("scale-and-waremark-${testDomain.ident()}-large.jpg")
@@ -460,29 +454,29 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
 
     void testActionWraper() {
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: WEB_APP_RESULT_DIR,
+            outputDir: webAppResultDir,
             prefix: 'action-wraped',
-            images: ['large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE],
-                              watermark:[sign:'images/watermark.png', offset:[top:10, left:10]]],
-                      'small':[scale:[width:300, height:300, type:ScaleType.ACCURATE]]]
+            images: ['large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE],
+                watermark: [sign: 'images/watermark.png', offset: [top: 10, left: 10]]],
+                'small': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]]]
         ]
 
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg')).save(flush:true)
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg')).save(flush: true)
         def version = testDomain.version
 
         assertNull testDomain.imageExtension
         assertFalse fileExists("action-wraped-${testDomain.ident()}-large.jpg")
         assertFalse fileExists("action-wraped-${testDomain.ident()}-small.jpg")
 
-        imageUploadService.save(testDomain, {image, name, action ->
+        imageUploadService.save(testDomain, { image, name, action ->
             action()
 
-            if (name == 'large'){
-                image.text({it.write("Text on large image", 300, 300)})
+            if (name == 'large') {
+                image.text({ it.write("Text on large image", 300, 300) })
             }
 
-            if (name == 'small'){
-                image.text({it.write("Text on small image", 10, 50)})
+            if (name == 'small') {
+                image.text({ it.write("Text on small image", 10, 50) })
             }
         })
 
@@ -492,16 +486,16 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         assertTrue fileExists("action-wraped-${testDomain.ident()}-small.jpg")
 
         testDomain.image = getMultipartFile('image.png')
-        
-        imageUploadService.save(testDomain, true, {image, name, action ->
+
+        imageUploadService.save(testDomain, true, { image, name, action ->
             action()
 
-            if (name == 'large'){
-                image.text({it.write("Text on large image", 300, 300)})
+            if (name == 'large') {
+                image.text({ it.write("Text on large image", 300, 300) })
             }
 
-            if (name == 'small'){
-                image.text({it.write("Text on small image", 10, 50)})
+            if (name == 'small') {
+                image.text({ it.write("Text on small image", 10, 50) })
             }
         })
 
@@ -516,31 +510,31 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
     }
 
     void testAbsolutePath() {
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg'))
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg'))
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         assertNull testDomain.imageExtension
 
-        println getAbsolutePath(WEB_APP_RESULT_DIR)
+        println getAbsolutePath(webAppResultDir)
 
         ConfigurationHolder.config.bi.TestDomain = [
-            outputDir: ['path':getAbsolutePath(WEB_APP_RESULT_DIR), 'alias':'/upload/'],
+            outputDir: ['path': getAbsolutePath(webAppResultDir), 'alias': '/upload/'],
             prefix: 'prefixName',
-            images: ['small':[scale:[width:100, height:100, type:ScaleType.ACCURATE]],
-                     'medium':[scale:[width:300, height:300, type:ScaleType.ACCURATE]],
-                     'large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+            images: ['small': [scale: [width: 100, height: 100, type: ScaleType.ACCURATE]],
+                'medium': [scale: [width: 300, height: 300, type: ScaleType.ACCURATE]],
+                'large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
             ]
         ]
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
 
         assertNull testDomain.imageExtension
 
-        testDomain.save(flush:true)
+        testDomain.save(flush: true)
         def version = testDomain.version
 
         assertNotNull testDomain.ident()
@@ -572,9 +566,9 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
     }
 
     void testScaleImageMagickApproximate() {
-        def testDomain = new TestDomain(image:getMultipartFile('image.jpg'))
+        def testDomain = new TestDomain(image: getMultipartFile('image.jpg'))
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         assertNull testDomain.imageExtension
@@ -582,19 +576,19 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
         ConfigurationHolder.config.bi = [
             renderingEngine: RenderingEngine.IMAGE_MAGICK,
             TestDomain: [
-                outputDir: WEB_APP_RESULT_DIR,
+                outputDir: webAppResultDir,
                 prefix: 'imageMagick',
-                images: ['large':[scale:[width:800, height:600, type:ScaleType.APPROXIMATE]]
+                images: ['large': [scale: [width: 800, height: 600, type: ScaleType.APPROXIMATE]]
                 ]
             ]
         ]
 
-        shouldFail(IllegalArgumentException){
+        shouldFail(IllegalArgumentException) {
             imageUploadService.save(testDomain)
         }
         assertNull testDomain.imageExtension
 
-        testDomain.save(flush:true)
+        testDomain.save(flush: true)
         def version = testDomain.version
 
         assertNotNull testDomain.ident()
@@ -613,12 +607,12 @@ class ImageUploadServiceTests extends GrailsUnitTestCase implements ApplicationC
 
         assertFalse fileExists("imageMagick-${testDomain.id}-large.jpg")
         assertTrue fileExists("imageMagick-${testDomain.id}-large.png")
-        
+
         assertTrue testDomain.imageExtension == 'png'
         assertTrue testDomain.version > version
     }
 
-    protected def getAbsolutePath(String uploadDir){
+    protected def getAbsolutePath(String uploadDir) {
         applicationContext.getResource(uploadDir).getFile().toString()
     }
 }

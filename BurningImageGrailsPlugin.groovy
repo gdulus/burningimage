@@ -1,11 +1,14 @@
+import pl.burningice.plugins.image.ResourcePathProvider
+import pl.burningice.plugins.image.container.ContainerWorkerFactory
+
 class BurningImageGrailsPlugin {
-    // the plugin version
+
     def version = "0.5.0"
-    // the version or versions of Grails the plugin is designed for
+
     def grailsVersion = "1.2 > *"
-    // the other plugins this plugin depends on
+
     def dependsOn = [:]
-    // resources that are excluded from plugin packaging
+
     def pluginExcludes = [
         "grails-app/views/error.gsp",
         "grails-app/domain/pl/burningice/plugins/image/ast/test/**",
@@ -14,19 +17,18 @@ class BurningImageGrailsPlugin {
     ]
 
     def author = "Pawel Gdula"
+
     def authorEmail = "pawel.gdula@burningice.pl"
+
     def title = "Burning Image"
+
     def description = "Image manipulation plugin"
 
-    // URL to the plugin's documentation
-    def documentation = "http://code.google.com/p/burningimage/"
+    def documentation = "https://github.com/gdulus/burningimage/wiki"
 
     def doWithSpring = {
-        resourcePathProvider(pl.burningice.plugins.image.ResourcePathProvider)
-        
-        containerWorkerFactory(pl.burningice.plugins.image.container.ContainerWorkerFactory){
-            resourcePathProvider = ref('resourcePathProvider')    
-        }
+        resourcePathProvider(ResourcePathProvider) { it.autowire = 'byName' }
+        containerWorkerFactory(ContainerWorkerFactory) { it.autowire = 'byName' }
     }
 
     def doWithApplicationContext = { applicationContext ->

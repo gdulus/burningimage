@@ -22,7 +22,7 @@ THE SOFTWARE.
 package pl.burningice.plugins.image
 
 import org.springframework.web.multipart.MultipartFile
-import  pl.burningice.plugins.image.engines.*
+import pl.burningice.plugins.image.engines.Worker
 
 /**
  * Main entry for the plugin
@@ -37,7 +37,7 @@ class BurningImageService {
     static {
         System.setProperty('com.sun.media.jai.disableMediaLib', 'true');
         System.setProperty('jmagick.systemclassloader', 'false');
-    } 
+    }
 
     boolean transactional = false
 
@@ -50,7 +50,7 @@ class BurningImageService {
      * @throws IllegalArgumentException If any input is null
      * @throws FileNotFoundException If there is no file in specified location or there is no output directory
      */
-    def doWith(String filePath, String resultDir){
+    def doWith(String filePath, String resultDir) {
         if (!filePath || !resultDir) {
             throw new IllegalArgumentException('Source file and output directory paths must be provided')
         }
@@ -85,7 +85,7 @@ class BurningImageService {
         getWorker(file, resultDir)
     }
 
-     /**
+    /**
      * Executes work for file determined by MultipartFile interface
      *
      * @param file File uploaded by the user (or in other case when file is represented by MultipartFile interface)
@@ -102,7 +102,7 @@ class BurningImageService {
             throw new FileNotFoundException("Uploaded file ${file.originalFilename} is empty")
         }
 
-        new Worker(loadedImage:file)
+        new Worker(loadedImage: file)
     }
 
     /**
@@ -113,15 +113,15 @@ class BurningImageService {
      * @return Object that execute specified manipulations on image
      * @throws FileNotFoundException If there is no output directory
      */
-    private def getWorker(file, resultDir){
+    private def getWorker(file, resultDir) {
         if (!(new File(resultDir).exists())) {
             throw new FileNotFoundException("There is no output ${resultDir} directory")
         }
-        
-        if (resultDir[-1] == '/'){
+
+        if (resultDir[-1] == '/') {
             resultDir = resultDir[0..-2]
         }
 
-        new Worker(loadedImage:file, resultDir:resultDir)
+        new Worker(loadedImage: file, resultDir: resultDir)
     }
 }

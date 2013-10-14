@@ -28,9 +28,9 @@ import pl.burningice.plugins.image.ast.intarface.ImageContainer
  *
  * @author pawel.gdula@burningice.pl
  */
-abstract class ContainerWorker {
+abstract class ContainerWorker<T extends ImageContainer> {
 
-    ImageContainer container
+    T container
 
     @Lazy
     public config = {
@@ -43,11 +43,11 @@ abstract class ContainerWorker {
 
     abstract public SaveCommand getSaveCommand(String size)
 
-    public String toString(){
-        return "Image container: ${container.class.name}"      
+    public String toString() {
+        return "Image container: ${container.class.name}"
     }
 
-    public def isPersisted(){
-        return this.container.ident() != null            
+    public boolean isPersisted() {
+        return this.container.ident() != null
     }
 }
