@@ -22,7 +22,6 @@ THE SOFTWARE.
 package pl.burningice.plugins.image.container
 
 import pl.burningice.plugins.image.ast.intarface.DBImageContainer
-import pl.burningice.plugins.image.ast.Image
 
 /**
  * Command object that allows to delete images associated with DB image container.
@@ -31,9 +30,8 @@ import pl.burningice.plugins.image.ast.Image
  * @author pawel.gdula@burningice.pl
  */
 class DeleteDbImageCommand {
-    static public void execute(DBImageContainer container){
-        Image.withNewSession {
-            new DbContainerWorker(container:container).delete()
-        }
+
+    static public void execute(DBImageContainer container) {
+        new DbContainerWorker(container: container).delete()
     }
 }

@@ -1,0 +1,10 @@
+language: groovy
+
+jdk:
+- oraclejdk7
+
+before_install:
+- sudo apt-get install jmagick
+- sudo ln -s /usr/lib/jni/libJMagick.so /usr/lib
+
+script: ./grailsw refresh-dependencies && ./grailsw test-app

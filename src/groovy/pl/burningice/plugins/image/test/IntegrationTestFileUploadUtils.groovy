@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009 Pawel Gdula <pawel.gdula@burningice.pl>
+Copyright (c) 2010 Pawel Gdula <pawel.gdula@burningice.pl>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,38 +19,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package pl.burningice.plugins.image.container
-
-import pl.burningice.plugins.image.ast.Image
-import pl.burningice.plugins.image.ast.intarface.DBImageContainer
+package pl.burningice.plugins.image.test
 
 /**
- * Worker for DB container
+ * Class provide additional methods for testing file upload
  *
  * @author pawel.gdula@burningice.pl
  */
-class DbContainerWorker extends ContainerWorker<DBImageContainer> {
+class IntegrationTestFileUploadUtils extends FileUploadUtils {
 
-    boolean hasImage() {
-        return (container.biImage != null && !container.biImage.isEmpty())
+    private static final String RESULT_DIR = './web-app/upload/'
+
+    private static final String SOURCE_DIR = './resources/testImages/'
+
+    private static final String WEB_APP_RESULT_DIR = './upload/'
+
+    public String getResultDir() {
+        return RESULT_DIR
     }
 
-    void delete() {
-        if (!hasImage()) {
-            return
-        }
-
-        List<Image> images = [] + container.biImage.values()
-
-        images.each {
-            container.removeFromBiImage(it)
-            it.delete()
-        }
-
-        container.biImage = null
+    public String getWebAppResultDir() {
+        return WEB_APP_RESULT_DIR
     }
 
-    SaveCommand getSaveCommand(String size) {
-        return new SaveToDbCommand(container, size)
+    public String getSourceDir() {
+        return SOURCE_DIR
     }
+
 }
