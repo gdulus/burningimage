@@ -32,8 +32,6 @@ import pl.burningice.plugins.image.ast.intarface.DBImageContainer
 class DeleteDbImageCommand {
 
     static public void execute(DBImageContainer container) {
-        //Image.withNewSession {
         new DbContainerWorker(container: container).delete()
-        //}
     }
 }

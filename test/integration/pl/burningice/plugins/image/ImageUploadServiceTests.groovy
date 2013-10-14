@@ -63,7 +63,7 @@ class ImageUploadServiceTests extends GroovyTestCase implements ApplicationConte
         assertEquals(TestDbContainerDomainThird.count(), 0)
         assertEquals(0, Image.count())
         // see definition of TestDbContainerDomainThird to understand this line
-        //assertEquals('prefixed-test 1', testDomain1.name)
+        assertEquals('prefixed-test 1', testDomain1.name)
     }
 
     void testDeleteDbContainerAndRelatedImages() {

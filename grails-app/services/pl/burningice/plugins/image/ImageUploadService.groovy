@@ -106,7 +106,7 @@ class ImageUploadService {
             return uploadWorker.container
         }
         // perform update
-        return uploadWorker.container.save()
+        return uploadWorker.container.save(flush: true)
     }
 
     /**

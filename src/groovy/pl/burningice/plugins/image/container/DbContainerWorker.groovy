@@ -21,6 +21,7 @@ THE SOFTWARE.
 */
 package pl.burningice.plugins.image.container
 
+import pl.burningice.plugins.image.ast.Image
 import pl.burningice.plugins.image.ast.intarface.DBImageContainer
 
 /**
@@ -39,7 +40,13 @@ class DbContainerWorker extends ContainerWorker<DBImageContainer> {
             return
         }
 
-        container.biImage.collect { it.value }.each { it.delete(flush: true) }
+        List<Image> images = [] + container.biImage.values()
+
+        images.each {
+            container.removeFromBiImage(it)
+            it.delete()
+        }
+
         container.biImage = null
     }
 
