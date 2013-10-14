@@ -2,8 +2,7 @@ language: groovy
 
 before_install:
 - sudo apt-get install jmagick
-- chmod 777 ./resources/resultImages
-- chmod 777 ./testImages/resultImages
-- chmod 777 ./testImages/resultImages/*
+- sudo apt-get install tree
+- tree ./
 
 script: ./grailsw refresh-dependencies && ./grailsw test-app
